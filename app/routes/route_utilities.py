@@ -32,17 +32,18 @@ def create_model(cls, model_data):
 
 def get_models_with_filters(cls, filters=None):
     query = db.select(cls)
-    
-    # if "sort" in filters: # ASSUMING FOR NOW, THAT IF SORT IS THERE IT'S JUST SORT 
-    #     if filers["sort"] == "asc":
-    
-    if filters: # ASSUMING FOR NOW, THAT IF SORT IS THERE IT'S JUST SORT 
-        # if "sort" in filters:
-        #     sort = filters.remove("sort").value()
+    filters = dict(filters) # is this okay? I think so
+    sort_order = filters.pop("sort", None) # defaults to none if not present -- assuming we want to sort by id if 'sort' isn't given
+
+    if filters:
         for attribute, value in filters.items():
             if hasattr(cls, attribute):
                 query = query.where(getattr(cls, attribute).ilike(f"%{value}%"))
-
-    models = db.session.scalars(query.order_by(cls.id))
-    models_response = [model.to_dict() for model in models] # if we change the ^ one to remove "task", can do model.to_dict("task") here?
-    return models_response
+    if sort_order == "desc":
+        sort_clause = cls.title.desc()
+    elif sort_order == "asc":
+        sort_clause = cls.title.asc() 
+    else:
+        sort_clause = cls.id
+    models = db.session.scalars(query.order_by(sort_clause))
+    return [model.to_dict() for model in models] # if we change the ^ one to remove "task", can do model.to_dict("task") here?
