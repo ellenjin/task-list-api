@@ -1,3 +1,6 @@
+from dotenv import load_dotenv # loads .env variables into os.environ
+load_dotenv()
+
 from flask import Flask
 from .db import db, migrate
 from .models import task, goal

@@ -3,6 +3,7 @@ from app.models.task import Task
 from ..db import db
 from .route_utilities import create_model, get_models_with_filters, validate_model
 from datetime import datetime
+from .slack_routes import send_slack_notification
 
 bp = Blueprint("task_list_bp", __name__, url_prefix="/tasks")
 
@@ -48,6 +49,8 @@ def mark_complete(task_id):
     task = validate_model(Task, task_id)
     task.completed_at = datetime.now()
     db.session.commit()
+
+    send_slack_notification(f"Someone just completed the task {task.title}")
 
     return Response(status=204, mimetype="application/json")
 
