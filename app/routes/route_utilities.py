@@ -28,11 +28,11 @@ def create_model(cls, model_data):
     db.session.add(new_model)
     db.session.commit()
 
-    return {"task": new_model.to_dict()}, 201 # MAKE THIS UNIVERSAL LATER SO IT'S NOT TASK {to.lower(cls.__name__)}?
+    return {cls.__name__.lower(): new_model.to_dict()}, 201
 
 def get_models_with_filters(cls, filters=None):
     query = db.select(cls)
-    filters = dict(filters) # is this okay? I think so
+    filters = dict(filters)
     sort_order = filters.pop("sort", None) # defaults to none if not present -- assuming we want to sort by id if 'sort' isn't given
 
     if filters:
@@ -46,4 +46,4 @@ def get_models_with_filters(cls, filters=None):
     else:
         sort_clause = cls.id
     models = db.session.scalars(query.order_by(sort_clause))
-    return [model.to_dict() for model in models] # if we change the ^ one to remove "task", can do model.to_dict("task") here?
+    return [model.to_dict() for model in models]
