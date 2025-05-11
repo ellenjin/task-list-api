@@ -1,4 +1,4 @@
-from flask import abort, Blueprint, make_response, request, Response
+from flask import Blueprint, request, Response
 from app.models.goal import Goal
 from app.models.task import Task
 from ..db import db
@@ -19,7 +19,7 @@ def get_all_goals():
 def get_one_goal(goal_id):
     goal = validate_model(Goal, goal_id)
     result = {}
-    result["goal"] = goal.to_dict() # RE-EVALUATE THIS LATER
+    result["goal"] = goal.to_dict()
     return result
 
 @bp.put("/<goal_id>")
@@ -46,13 +46,7 @@ def connect_task_to_goal(goal_id):
     
     goal = validate_model(Goal, goal_id)
 
-    # try:
-    #     goal_id == goal.id
-    # except:
-    #     response = {"message": f"Invalid request: ID given in path not equivalent to ID in request body."}
-    #     abort(make_response(response, 400)) # CHECK THIS LATER WHAT RESPONSE CODE SHOULD I DO
-
-    request_body = request.get_json() # this should be the dict w/ key: task_ids value: list of the ids
+    request_body = request.get_json() 
     tasks = []
 
     for task_id in request_body["task_ids"]:
@@ -67,22 +61,23 @@ def connect_task_to_goal(goal_id):
         task.goal_id = None
 
     for task in tasks:
-        task.goal_id = goal_id # only need to update FK in task item to create relationship
+        task.goal_id = goal_id # only need to update FK in task to create relationship
 
     db.session.commit()
 
+    # To reach this point, all the given IDs have been verified + relationship created.
     response_body = {
         "id": goal.id,
-        "task_ids": request_body["task_ids"] # To reach this point, all the given IDs have been verified + relationship created.
+        "task_ids": request_body["task_ids"] 
     }
-    return response_body, 200 # fix this later
+    return response_body, 200
 
 @bp.get("/<goal_id>/tasks")
-def get_tasks(goal_id): # getting tasks of one goal 
+def get_tasks(goal_id):
     goal = validate_model(Goal, goal_id)
     response_body = goal.to_dict()
     
     if not goal.tasks:
-        response_body["tasks"] = [] # Do this to avoid issues with previous tests
+        response_body["tasks"] = [] # To avoid issues with previous tests
     
     return response_body, 200

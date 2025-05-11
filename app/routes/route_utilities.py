@@ -21,7 +21,6 @@ def create_model(cls, model_data):
     try: 
         new_model = cls.from_dict(model_data)
     except KeyError as error:
-        # response = {"message": f"Invalid request: missing {error.args[0]}"}
         response = {"details": "Invalid data"}
         abort(make_response(response, 400))
 
@@ -33,7 +32,8 @@ def create_model(cls, model_data):
 def get_models_with_filters(cls, filters=None):
     query = db.select(cls)
     filters = dict(filters)
-    sort_order = filters.pop("sort", None) # defaults to none if not present -- assuming we want to sort by id if 'sort' isn't given
+    sort_order = filters.pop("sort", None) 
+    # defaults to none if not present. Assuming we want to sort by id if 'sort' isn't given
 
     if filters:
         for attribute, value in filters.items():

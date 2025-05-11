@@ -1,4 +1,4 @@
-from flask import abort, Blueprint, make_response, request, Response
+from flask import Blueprint, request, Response
 from app.models.task import Task
 from ..db import db
 from .route_utilities import create_model, get_models_with_filters, validate_model
@@ -20,7 +20,7 @@ def get_all_tasks():
 def get_one_task(task_id):
     task = validate_model(Task, task_id)
     result = {}
-    result["task"] = task.to_dict() # RE-EVALUATE THIS LATER
+    result["task"] = task.to_dict()
     return result
 
 @bp.put("/<task_id>")
